@@ -18,7 +18,8 @@ T = TypeVar("T")
 def _env_scan():
     for entry in entry_points().get("creart.creators", []):
         creator = entry.load()
-        add_creator(creator)
+        if creator.available():
+            add_creator(creator)
 
 
 def add_creator(creator: type[AbstractCreator]):
