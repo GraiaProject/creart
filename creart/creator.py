@@ -9,13 +9,15 @@ from typing import ClassVar, TypeVar
 class CreateTargetInfo:
     module: str
     identify: str
-    
+
     # info for cli
     humanized_name: str | None = None
     description: str | None = None
     author: list[str] | None = None
 
+
 T = TypeVar("T")
+
 
 class AbstractCreator(metaclass=ABCMeta):
     targets: ClassVar[tuple[CreateTargetInfo, ...]]

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import functools
+import importlib.util
 import os
+import sys
+import types
 from importlib.metadata import entry_points
 from typing import Any, TypeVar
 
@@ -23,9 +27,7 @@ def _env_scan():
 
 
 def add_creator(creator: type[AbstractCreator]):
-    intersection = {f"{i.module}:{i.identify}" for i in creator.targets}.intersection(
-        _mapping.keys()
-    )
+    intersection = {f"{i.module}:{i.identify}" for i in creator.targets}.intersection(_mapping.keys())
     if intersection:
         raise ValueError(f"conclict target for {', '.join(intersection)}")
     _creators.append(creator)
@@ -42,9 +44,7 @@ def supported(target: type):
 
 def _assert_supported(target: type):
     if not supported(target):
-        raise TypeError(
-            f"current environment does not contain support for {_signature(target)}"
-        )
+        raise TypeError(f"current environment does not contain support for {_signature(target)}")
 
 
 def _get_creator(target: type) -> type[AbstractCreator]:
@@ -62,6 +62,38 @@ def create(target_type: type[T], *, cache: bool = True) -> T:
     if cache:
         _created[sig] = result
     return result
+
+
+def exists_module(package: str) -> bool:
+    return package in sys.modules or importlib.util.find_spec(package) is not None
+
+
+def mixin(*creators: AbstractCreator):
+    def wrapper(target: Any):
+        if isinstance(target, staticmethod):
+            target = target.__func__
+        if isinstance(target, types.FunctionType):
+            if target.__name__ == "available":
+
+                @functools.wraps(target)
+                def inner():
+                    return all([target(), *[i.available() for i in creators]])
+
+                return inner
+            else:
+                raise ValueError(f"no supported mixin for {target.__name__}")
+        elif isinstance(target, type) and issubclass(target, AbstractCreator):
+            origin = target.available
+
+            @functools.wraps(origin)
+            def inner():
+                return all([origin(), *[i.available() for i in creators]])
+
+            return inner
+        else:
+            raise TypeError(f"no supported mixin for {type(target)}")
+
+    return wrapper
 
 
 it = create
