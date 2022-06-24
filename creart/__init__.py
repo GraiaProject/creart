@@ -68,7 +68,7 @@ def exists_module(package: str) -> bool:
     return package in sys.modules or importlib.util.find_spec(package) is not None
 
 
-def mixin(*creators: AbstractCreator):
+def mixin(*creators: type[AbstractCreator]):
     def wrapper(target: Any):
         if isinstance(target, staticmethod):
             target = target.__func__
