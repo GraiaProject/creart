@@ -26,7 +26,6 @@ class CreateTargetInfo:
     """list of authors"""
 
 
-
 T = TypeVar("T")
 
 

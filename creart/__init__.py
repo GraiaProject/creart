@@ -5,8 +5,9 @@ import importlib.util
 import os
 import sys
 import types
-from importlib.metadata import entry_points
 from typing import Any, TypeVar
+
+from importlib_metadata import entry_points
 
 from creart.creator import AbstractCreator as AbstractCreator
 from creart.creator import CreateTargetInfo as CreateTargetInfo
@@ -20,7 +21,7 @@ T = TypeVar("T")
 
 
 def _env_scan():
-    for entry in entry_points().get("creart.creators", []):
+    for entry in entry_points().select(group="creart.creators"):
         creator = entry.load()
         if creator.available():
             add_creator(creator)
@@ -29,7 +30,7 @@ def _env_scan():
 def add_creator(creator: type[AbstractCreator]):
     intersection = {f"{i.module}:{i.identify}" for i in creator.targets}.intersection(_mapping.keys())
     if intersection:
-        raise ValueError(f"conclict target for {', '.join(intersection)}")
+        raise ValueError(f"conflict target for {', '.join(intersection)}")
     _creators.append(creator)
     _mapping.update({f"{i.module}:{i.identify}": creator for i in creator.targets})
 
