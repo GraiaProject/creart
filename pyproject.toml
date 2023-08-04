@@ -20,11 +20,15 @@ dev = [
     "isort>=5.10.1",
 ]
 
+[project.entry-points."creart.creators"]
+loop = "creart.builtins.loop:EventLoopCreator"
+
 [build-system]
-requires = ["pdm-pep517>=0.12.0"]
-build-backend = "pdm.pep517.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.black]
 line-length = 120
+
 [tool.isort]
 profile = "black"
