@@ -22,7 +22,17 @@ T = TypeVar("T")
 
 def _env_scan():
     for entry in entry_points().select(group="creart.creators"):
-        creator = entry.load()
+        try:
+            creator = entry.load()
+        except ImportError:
+            import warnings
+
+            warnings.warn(
+                f"error throwed when creart attempt to import {entry}"
+                "please check your environment and report this problem."
+            )
+            continue
+
         if creator.available():
             add_creator(creator)
 
