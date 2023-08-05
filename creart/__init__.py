@@ -99,5 +99,5 @@ def mixin(*creators: type[AbstractCreator]):
 
 it = create
 
-if os.getenv("CREART_AUTO_SCAN") not in {"false", "False", "0", "no", "off"}:
+if os.getenv("CREART_AUTO_SCAN", "") not in {"false", "False", "0", "no", "off"}:
     _env_scan()
